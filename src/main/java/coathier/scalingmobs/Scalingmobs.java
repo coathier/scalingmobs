@@ -1,14 +1,14 @@
 package coathier.scalingmobs;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 
 public class Scalingmobs implements ModInitializer {
-	public static final String MOD_ID = "scalingmobs";
-
-	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-
 	@Override
 	public void onInitialize() {
-    ServerEntityEvents.ENTITY_LOAD.register(EventHandler::onEntityLoad);
+		AutoConfig.register(SMConfig.class, Toml4jConfigSerializer::new);
+		ServerEntityEvents.ENTITY_LOAD.register(EventHandler::onEntityLoad);
 	}
 }
