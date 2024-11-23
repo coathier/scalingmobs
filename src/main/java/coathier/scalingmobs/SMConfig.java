@@ -18,8 +18,8 @@ public class SMConfig implements ConfigData {
   public float startingDamage = 3;
   public ScalingType damageScalingType = ScalingType.LINEAR;
   public float damageExponentialIncrease = 1.1f;
-  public float damagelinearIncrease = 2;
-  public float damageValueMax = 150.0f;
+  public float damagelinearIncrease = 1;
+  public float damageValueMax = 19.0f;
   public boolean damageScaleByActiveDays = false;
 
   public enum ScalingType {
@@ -34,13 +34,15 @@ public class SMConfig implements ConfigData {
       scalingValue = Util.daysPassed(time);
     }
 
+    float value = this.startingHealth;
     switch (this.healthScalingType) {
       case LINEAR:
-        return this.startingHealth + this.healthlinearIncrease * scalingValue;
+        value = this.startingHealth + this.healthlinearIncrease * scalingValue;
+        break;
       case EXPONENTIAL:
-        return this.startingHealth + this.startingHealth * (float)Math.pow(this.healthExponentialIncrease, scalingValue);
+        value = this.startingHealth * (float)Math.pow(this.healthExponentialIncrease, scalingValue);
     }
-    return this.startingHealth;
+    return Math.min(value, this.healthValueMax);
   }
 
   public float calculateScalingDamage(long time) {
@@ -51,12 +53,14 @@ public class SMConfig implements ConfigData {
       scalingValue = Util.daysPassed(time);
     }
 
+    float value = this.startingDamage;
     switch (this.damageScalingType) {
       case LINEAR:
-        return this.startingDamage + this.damagelinearIncrease * scalingValue;
+        value = this.startingDamage + this.damagelinearIncrease * scalingValue;
+        break;
       case EXPONENTIAL:
-        return this.startingDamage + this.startingDamage * (float)Math.pow(this.damageExponentialIncrease, scalingValue);
+        value = this.startingDamage * (float)Math.pow(this.damageExponentialIncrease, scalingValue);
     }
-    return this.startingDamage;
+    return Math.min(value, this.damageValueMax);
   }
 }
