@@ -7,4 +7,3 @@ public class Util {
     return (int)(TICKS_PASSED / DAY_TICKS);
   }
 }
-

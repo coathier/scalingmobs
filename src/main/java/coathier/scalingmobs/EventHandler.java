@@ -10,19 +10,18 @@ public class EventHandler {
   public static void onEntityLoad(Entity entity , ServerWorld level) {
     if (entity.getWorld().isClient) return;
     if (!(entity instanceof HostileEntity mob)) return;
-    long daysPassed = Util.daysPassed(mob.getWorld().getTime());
-    if (!(daysPassed % 7 == 0)) return;
+
+    int daysPassed = Util.daysPassed(mob.getWorld().getTime());
 
     SMConfig config = AutoConfig.getConfigHolder(SMConfig.class).getConfig();
 
-    // TODO: Create a function to calculated the scaled values.
-    float scaledHealth = config.startingHealth;
+    if (!(daysPassed % config.activeNthDay == 0)) return;
 
+    float scaledHealth = config.calculateScalingHealth(mob.getWorld().getTime());
     mob.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(scaledHealth);
     mob.setHealth(mob.getMaxHealth());
 
-    float scaledDamage = config.startingDamage;
-
+    float scaledDamage = config.calculateScalingDamage(mob.getWorld().getTime());
     mob.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue(scaledDamage);
   }
 }
