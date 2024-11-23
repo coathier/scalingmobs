@@ -3,9 +3,9 @@
 	"id": "scalingmobs",
 	"version": "${version}",
 	"name": "scalingmobs",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Scale mob attributes over time, configure to your liking",
 	"authors": [
-		"Me!"
+		"coathier"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
