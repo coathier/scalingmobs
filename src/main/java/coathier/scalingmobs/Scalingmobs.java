@@ -8,7 +8,7 @@ import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 public class Scalingmobs implements ModInitializer {
 	@Override
 	public void onInitialize() {
-		AutoConfig.register(SMConfig.class, Toml4jConfigSerializer::new);
+		AutoConfig.register(ScalingMobsConfig.class, Toml4jConfigSerializer::new);
 		ServerEntityEvents.ENTITY_LOAD.register(EventHandler::onEntityLoad);
 	}
 }

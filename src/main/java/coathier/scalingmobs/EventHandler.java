@@ -21,11 +21,11 @@ public class EventHandler {
 
     long time = mob.getWorld().getTimeOfDay();
     int daysPassed = Util.daysPassed(time);
-    LOGGER.info("DAY: " + daysPassed);
+    LOGGER.info("Day: " + daysPassed);
 
-    SMConfig config = AutoConfig.getConfigHolder(SMConfig.class).getConfig();
+    ScalingMobsConfig config = AutoConfig.getConfigHolder(ScalingMobsConfig.class).getConfig();
 
-    LOGGER.info("isActiveDay: " + (daysPassed % config.activeNthDay == 0 ? "True" : "False"));
+    LOGGER.info("Active: " + (daysPassed % config.activeNthDay == 0 ? "True" : "False"));
 
     if (!(daysPassed % config.activeNthDay == 0)) return;
 
@@ -39,6 +39,11 @@ public class EventHandler {
     mob.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue(scaledDamage);
 
     LOGGER.info("Damage: " + scaledDamage);
+
+    float scaledSpeed = config.calculateScalingDamage(time);
+    mob.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(scaledSpeed);
+
+    LOGGER.info("Speed: " + scaledSpeed);
   }
 }
 
