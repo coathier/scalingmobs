@@ -29,18 +29,18 @@ public class EventHandler {
 
     if (!(daysPassed % config.activeNthDay == 0)) return;
 
-    float scaledHealth = config.calculateScalingHealth(time);
+    float scaledHealth = config.health.calculateValue(time);
     mob.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(scaledHealth);
     mob.setHealth(mob.getMaxHealth());
 
     LOGGER.info("Health: " + mob.getMaxHealth());
 
-    float scaledDamage = config.calculateScalingDamage(time);
+    float scaledDamage = config.damage.calculateValue(time);
     mob.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue(scaledDamage);
 
     LOGGER.info("Damage: " + scaledDamage);
 
-    float scaledSpeed = config.calculateScalingDamage(time);
+    float scaledSpeed = config.speed.calculateValue(time);
     mob.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(scaledSpeed);
 
     LOGGER.info("Speed: " + scaledSpeed);

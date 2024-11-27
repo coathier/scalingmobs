@@ -7,89 +7,56 @@ import me.shedaniel.autoconfig.annotation.Config;
 public class ScalingMobsConfig implements ConfigData {
   public int activeNthDay = 1;
 
-  public float startingHealth = 20;
-  public ScalingType healthScalingType = ScalingType.LINEAR;
-  public float healthExponentialIncrease = 1.1f;
-  public float healthLinearIncrease = 2;
-  public float healthValueMax = 150.0f;
-  public float healthValueMin = 0.0f;
-  public boolean healthScaleByActiveDays = false;
-  
+  public ScalingValue health = new ScalingValue(20, 150, 0, ScalingValue.ScalingType.LINEAR, 1.1f, 2, false);
+  public ScalingValue damage = new ScalingValue(3, 19, 0, ScalingValue.ScalingType.LINEAR, 1.1f, 1, false);
+  public ScalingValue speed = new ScalingValue(0.25f, 19, 0.1f, ScalingValue.ScalingType.LINEAR, 1.1f, -0.1f, false);
 
-  public float startingDamage = 3;
-  public ScalingType damageScalingType = ScalingType.LINEAR;
-  public float damageExponentialIncrease = 1.1f;
-  public float damageLinearIncrease = 1;
-  public float damageValueMax = 19.0f;
-  public float damageValueMin = 0.0f;
-  public boolean damageScaleByActiveDays = false;
-
-  public float startingSpeed = 0.25f;
-  public ScalingType speedScalingType = ScalingType.LINEAR;
-  public float speedExponentialIncrease = 1.1f;
-  public float speedLinearIncrease = -0.1f;
-  public float speedValueMax = 19.0f;
-  public float speedValueMin = 0.1f;
-  public boolean speedScaleByActiveDays = false;
-
-  public enum ScalingType {
-    LINEAR, EXPONENTIAL
-  }
-
-  public float calculateScalingHealth(long time) {
-    int scalingValue;
-    if (this.healthScaleByActiveDays) {
-      scalingValue = Util.daysPassed(time) / this.activeNthDay;
-    } else {
-      scalingValue = Util.daysPassed(time);
+  public class ScalingValue {
+    public ScalingValue(float start, float max, float min, ScalingType scalingType, float exponentialIncrease, float linearIncrease, boolean scaleByActiveDays) {
+      this.start = start;
+      this.max = max;
+      this.min = min;
+      this.scalingType = scalingType;
+      this.exponentialIncrease = exponentialIncrease;
+      this.linearIncrease = linearIncrease;
+      this.scaleByActiveDays = scaleByActiveDays;
     }
 
-    float value = this.startingHealth;
-    switch (this.healthScalingType) {
-      case LINEAR:
-        value = this.startingHealth + this.healthLinearIncrease * scalingValue;
-        break;
-      case EXPONENTIAL:
-        value = this.startingHealth * (float)Math.pow(this.healthExponentialIncrease, scalingValue);
-    }
-    return Math.min(value, Math.max(this.healthValueMin, this.healthValueMax));
-  }
+    public float start = 20;
+    public float max = 150.0f;
+    public float min = 0.0f;
+    public ScalingType scalingType = ScalingType.LINEAR;
+    public float exponentialIncrease = 1.1f;
+    public float linearIncrease = 2;
+    public boolean scaleByActiveDays = false;
 
-  public float calculateScalingDamage(long time) {
-    int scalingValue;
-    if (this.damageScaleByActiveDays) {
-      scalingValue = Util.daysPassed(time) / this.activeNthDay;
-    } else {
-      scalingValue = Util.daysPassed(time);
+    public enum ScalingType {
+      LINEAR, EXPONENTIAL
     }
 
-    float value = this.startingDamage;
-    switch (this.damageScalingType) {
-      case LINEAR:
-        value = this.startingDamage + this.damageLinearIncrease * scalingValue;
-        break;
-      case EXPONENTIAL:
-        value = this.startingDamage * (float)Math.pow(this.damageExponentialIncrease, scalingValue);
-    }
-    return Math.min(value, Math.max(this.damageValueMin, this.damageValueMax));
-  }
+    public float calculateValue(long time) {
+      int scalingValue;
+      if (this.scaleByActiveDays) {
+        scalingValue = Util.daysPassed(time) / ScalingMobsConfig.this.activeNthDay;
+      } else {
+        scalingValue = Util.daysPassed(time);
+      }
 
-  public float calculateScalingSpeed(long time) {
-    int scalingValue;
-    if (this.speedScaleByActiveDays) {
-      scalingValue = Util.daysPassed(time) / this.activeNthDay;
-    } else {
-      scalingValue = Util.daysPassed(time);
+      float value = this.start;
+      switch (this.scalingType) {
+        case LINEAR:
+          value = this.start + this.linearIncrease * scalingValue;
+          break;
+        case EXPONENTIAL:
+          value = this.start * (float)Math.pow(this.exponentialIncrease, scalingValue);
+      }
+      if (value > this.max) {
+        return this.max;
+      } else if (value < this.min) {
+        return this.min;
+      } else {
+        return value;
+      }
     }
-
-    float value = this.startingSpeed;
-    switch (this.speedScalingType) {
-      case LINEAR:
-        value = this.startingSpeed + this.speedLinearIncrease * scalingValue;
-        break;
-      case EXPONENTIAL:
-        value = this.startingSpeed * (float)Math.pow(this.speedExponentialIncrease, scalingValue);
-    }
-    return Math.min(value, Math.max(this.speedValueMin, this.speedValueMax));
   }
 }
