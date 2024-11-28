@@ -8,10 +8,9 @@
 		"coathier"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/coathier/scalingmobs"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/scalingmobs/icon.png",
 	"environment": "*",
 	"entrypoints": {
@@ -25,9 +24,7 @@
 		"fabricloader": ">=0.16.9",
 		"minecraft": "~1.20.1",
 		"java": ">=17",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
+		"fabric-api": "*",
+		"cloth-config": "11.1.136"
 	}
 }
