@@ -24,6 +24,7 @@ public class EventHandler {
 
     ScalingMobsConfig config = AutoConfig.getConfigHolder(ScalingMobsConfig.class).getConfig();
 
+    if (daysPassed == 0 && config.activeNthDay != 1) return;
     if (!(daysPassed % config.activeNthDay == 0)) return;
 
     float scaledHealth = config.health.calculateValue(time);
