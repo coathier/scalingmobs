@@ -18,17 +18,9 @@
 		"main": [
 			"coathier.scalingmobs.Scalingmobs"
 		],
-		"client": [
-			"coathier.scalingmobs.ScalingmobsClient"
-		]
+		"client": []
 	},
-	"mixins": [
-		"scalingmobs.mixins.json",
-		{
-			"config": "scalingmobs.client.mixins.json",
-			"environment": "client"
-		}
-	],
+	"mixins": [],
 	"depends": {
 		"fabricloader": ">=0.16.9",
 		"minecraft": "~1.20.1",
