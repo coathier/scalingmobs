@@ -22,14 +22,14 @@ public class EventHandler {
     if (entity instanceof WardenEntity) return;
 
     float scaledHealth = config.health.calculateValue(mob.getPos(), time, config.activeNthDay);
-    mob.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(scaledHealth);
+    mob.getAttributeInstance(EntityAttributes.MAX_HEALTH).setBaseValue(scaledHealth);
     mob.setHealth(mob.getMaxHealth());
 
     float scaledDamage = config.damage.calculateValue(mob.getPos(), time, config.activeNthDay);
-    mob.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue(scaledDamage);
+    mob.getAttributeInstance(EntityAttributes.ATTACK_DAMAGE).setBaseValue(scaledDamage);
 
     float scaledSpeed = config.speed.calculateValue(mob.getPos(), time, config.activeNthDay);
-    mob.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(scaledSpeed);
+    mob.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED).setBaseValue(scaledSpeed);
 
     // Scalingmobs.LOGGER.info(
 	   //  "Day: " + daysPassed + "\n" +
