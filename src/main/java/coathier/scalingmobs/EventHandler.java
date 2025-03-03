@@ -9,11 +9,7 @@ import net.minecraft.server.world.ServerWorld;
 
 public class EventHandler {
   public static void onEntityLoad(Entity entity , ServerWorld level) {
-    if (level.isClient) return;
-    if (!(entity instanceof HostileEntity mob)) return;
-    if (entity instanceof WardenEntity) return;
-
-    long time = mob.getWorld().getTimeOfDay();
+    long time = entity.getWorld().getTimeOfDay();
     int daysPassed = Util.daysPassed(time);
 
     ScalingMobsConfig config = AutoConfig.getConfigHolder(ScalingMobsConfig.class).getConfig();
@@ -21,14 +17,18 @@ public class EventHandler {
     if (daysPassed == 0 && config.activeNthDay != 1) return;
     if (!(daysPassed % config.activeNthDay == 0)) return;
 
-    float scaledHealth = config.health.calculateValue(time);
+    if (level.isClient) return;
+    if (!(entity instanceof HostileEntity mob)) return;
+    if (entity instanceof WardenEntity) return;
+
+    float scaledHealth = config.health.calculateValue(mob.getPos(), time, config.activeNthDay);
     mob.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(scaledHealth);
     mob.setHealth(mob.getMaxHealth());
 
-    float scaledDamage = config.damage.calculateValue(time);
+    float scaledDamage = config.damage.calculateValue(mob.getPos(), time, config.activeNthDay);
     mob.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue(scaledDamage);
 
-    float scaledSpeed = config.speed.calculateValue(time);
+    float scaledSpeed = config.speed.calculateValue(mob.getPos(), time, config.activeNthDay);
     mob.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(scaledSpeed);
 
     // Scalingmobs.LOGGER.info(
