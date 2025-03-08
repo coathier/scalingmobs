@@ -21,13 +21,13 @@ public class EventHandler {
 
     Vec3d position = mob.getPos();
     long time = mob.getWorld().getTimeOfDay();
-    String dimension = mob.getWorld().getDimensionEntry().getIdAsString();
+    String dimension = mob.getWorld().getDimensionEntry().toString();
 
     float value;
     boolean anyApplied = false;
 
     if (!config.health.isEmpty()) {
-      value = config.healthAddOnTopOfDefault ? (float)mob.getAttributeInstance(EntityAttributes.MAX_HEALTH).getBaseValue() : 0;
+      value = config.healthAddOnTopOfDefault ? (float)mob.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).getBaseValue() : 0;
 
       for (ScalingValue health : config.health) {
         Optional<Float> scaledHealth = health.calculateValue(position, time, dimension);
@@ -36,14 +36,14 @@ public class EventHandler {
         value += scaledHealth.get();
       }
       if (anyApplied) {
-        mob.getAttributeInstance(EntityAttributes.MAX_HEALTH).setBaseValue(value);
+        mob.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(value);
         mob.setHealth(mob.getMaxHealth());
       }
     }
 
     anyApplied = false;
     if (!config.damage.isEmpty()) {
-      value = config.damageAddOnTopOfDefault ? (float)mob.getAttributeInstance(EntityAttributes.ATTACK_DAMAGE).getBaseValue() : 0;
+      value = config.damageAddOnTopOfDefault ? (float)mob.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).getBaseValue() : 0;
 
       for (ScalingValue damage: config.damage) {
         Optional<Float> scaledDamage = damage.calculateValue(position, time, dimension);
@@ -53,14 +53,14 @@ public class EventHandler {
       }
 
       if (anyApplied) {
-        mob.getAttributeInstance(EntityAttributes.ATTACK_DAMAGE).getValue();
-        mob.getAttributeInstance(EntityAttributes.ATTACK_DAMAGE).setBaseValue(value);
+        mob.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).getValue();
+        mob.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue(value);
       }
     }
 
     anyApplied = false;
     if (!config.speed.isEmpty()) {
-      value = config.speedAddOnTopOfDefault ? (float)mob.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED).getBaseValue() : 0;
+      value = config.speedAddOnTopOfDefault ? (float)mob.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).getBaseValue() : 0;
 
       for (ScalingValue speed: config.speed) {
         Optional<Float> scaledSpeed = speed.calculateValue(position, time, dimension);
@@ -70,7 +70,7 @@ public class EventHandler {
       }
 
       if (anyApplied) {
-        mob.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED).setBaseValue(value);
+        mob.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(value);
       }
     }
   }
