@@ -28,6 +28,9 @@ public class ScalingMobsConfig {
     File file = new File("config/" + Scalingmobs.MOD_ID + ".toml");
     if (!file.exists()) {
       try {
+        File dir = new File("config");
+        if (!dir.exists()) dir.mkdir();
+
         file.createNewFile();
         FileWriter writer = new FileWriter(file);
         writer.write("""
