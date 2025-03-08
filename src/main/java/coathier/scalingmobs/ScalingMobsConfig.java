@@ -1,72 +1,134 @@
 package coathier.scalingmobs;
 
-import coathier.scalingmobs.ScalingMobsConfig.ScalingValue.ScalingFactor;
-import me.shedaniel.autoconfig.ConfigData;
-import me.shedaniel.autoconfig.annotation.Config;
-import net.minecraft.util.math.Vec3d;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
-@Config(name="scalingmobs")
-public class ScalingMobsConfig implements ConfigData {
-  public int activeNthDay = 1;
+import com.moandjiezana.toml.Toml;
 
-  public ScalingValue health = new ScalingValue(20, 150, 0, ScalingValue.ScalingType.LINEAR, ScalingFactor.DAYS, 1.1f, 2, true); // 26 health at 21 days
-  public ScalingValue damage = new ScalingValue(3, 20, 0, ScalingValue.ScalingType.LINEAR, ScalingFactor.DAYS, 1.1f, 1, true); // 6 damage at 21 days
-  public ScalingValue speed = new ScalingValue(0.20f, 0.3f, 0.1f, ScalingValue.ScalingType.LINEAR, ScalingFactor.DAYS, 1.1f, 0.01f, true); // 0.23 speed at 23 days
+public class ScalingMobsConfig {
+  
+  public static ScalingMobsConfig INSTANCE;
 
-  public class ScalingValue {
-    public ScalingValue(float start, float max, float min, ScalingType scalingType, ScalingFactor scalingFactor, float exponentialIncrease, float linearIncrease, boolean scaleByActiveDays) {
-      this.start = start;
-      this.max = max;
-      this.min = min;
-      this.scalingType = scalingType;
-      this.exponentialIncrease = exponentialIncrease;
-      this.linearIncrease = linearIncrease;
+  public List<ScalingValue> health;
+  public List<ScalingValue> damage;
+  public List<ScalingValue> speed;
+
+  public Boolean healthAddOnTopOfDefault = false;
+  public Boolean damageAddOnTopOfDefault = false;
+  public Boolean speedAddOnTopOfDefault = false;
+
+  public void load() {
+    health = new LinkedList<>();
+    damage = new LinkedList<>();
+    speed = new LinkedList<>();
+
+    File file = new File("config/" + Scalingmobs.MOD_ID + ".toml");
+    if (!file.exists()) {
+      try {
+        file.createNewFile();
+        FileWriter writer = new FileWriter(file);
+        writer.write("""
+          # This is a example config. Each comment describes what the
+          # setting/modifier under it does
+
+          # All health modifiers get applied on top of vanilla/default attributes
+          healthAddOnTopOfDefault = true
+
+          # All damage and speed modifiers will be applied from 0, without the
+          # vanilla attributes
+          damageAddOnTopOfDefault = false
+          speedAddOnTopOfDefault = false
+
+          # Modifiers where \"timeWhenActive\" isn't set are only
+          # active at night because its default value is \"NIGHT\".
+
+          # For every block below Y=63 mobs gain hearts exponentially
+          [[health]]
+          start = 1
+          scalingFactor = \"DEPTH\"
+          scalingType = \"EXPONENTIAL\"
+          increaseFactor = 1.04
+
+          # https://minecraft.fandom.com/wiki/Moon
+          # At new moon the scaling is 0, at full moon it's 4
+          [[speed]]
+          start = 0.15
+          scalingFactor = \"LUNAR_PHASE\"
+          scalingType = \"LINEAR\"
+          increaseFactor = 0.05
+
+          # As you can see below one attribute can have as many different
+          # scaling modifiers as you want, here damage is both changed
+          # by days and their distance from spawn
+
+          # Everyday mobs do +0.5 more damage starting from 3 damage.
+          # This scaling will at most only give 10 damage.
+          # The scaling is only active every other day i.e day 1,3,5...
+          [[damage]]
+          activeNth = 2
+          start = 3.0
+          max = 10.0
+          scalingFactor = \"DAYS\"
+          scalingType = \"LINEAR\"
+          increaseFactor = 0.5
+
+          # Beyond 500 blocks from spawn (X=0, Z=0) mobs do 10 extra damage
+          # both day and night
+          [[damage]]
+          scalingFactor = \"DISTANCE_FROM_SPAWN\"
+          scalingType = \"CONSTANT\"
+          increaseFactor = 10
+          startingFrom = 500
+          timeWhenActive = \"BOTH\" # This value can be \"DAY\" or \"NIGHT\", it's default 
+          """);
+        writer.close();
+      } catch (IOException e) {
+        Scalingmobs.LOGGER.error(e.toString());
+        Scalingmobs.LOGGER.error("Error while writing trying to write default config");
+      }
     }
 
-    public float start = 20;
-    public float max = 150.0f;
-    public float min = 0.0f;
-    public ScalingFactor scalingFactor = ScalingFactor.DAYS;
-    public ScalingType scalingType = ScalingType.LINEAR;
-    public float exponentialIncrease = 1.1f;
-    public float linearIncrease = 2;
+    Toml config =  new Toml().read(file);
 
-    public enum ScalingType {
-      LINEAR, EXPONENTIAL
-    }
+    healthAddOnTopOfDefault = config.getBoolean("healthAddOnTopOfDefault", false);
+    damageAddOnTopOfDefault = config.getBoolean("damageAddOnTopOfDefault", false);
+    speedAddOnTopOfDefault = config.getBoolean("speedAddOnTopOfDefault", false);
 
-    public enum ScalingFactor {
-      DAYS, ACTIVE_DAYS, DISTANCE_FROM_SPAWN
-    }
-
-    public float calculateValue(Vec3d position, long time, int activeNthDay) {
-      int scalingValue = 1;
-      switch (this.scalingFactor) {
-        case DAYS:
-          scalingValue = (int)time;
-          break;
-        case ACTIVE_DAYS:
-          scalingValue = Util.daysPassed(time) / activeNthDay;
-          break;
-        case DISTANCE_FROM_SPAWN:
-          scalingValue = (int)Math.sqrt(position.x * position.x + position.z * position.z);
+    try {
+      List<Toml> tables = config.getTables("health");
+      if (tables != null) {
+        for (Toml table : tables) {
+          ScalingValue scalingValue = table.to(ScalingValue.class);
+          scalingValue.setDefaults();
+          health.add(scalingValue);
+        }
       }
 
-      float value = this.start;
-      switch (this.scalingType) {
-        case LINEAR:
-          value = this.start + this.linearIncrease * scalingValue;
-          break;
-        case EXPONENTIAL:
-          value = this.start * (float)Math.pow(this.exponentialIncrease, scalingValue);
+      tables = config.getTables("damage");
+      if (tables != null) {
+        for (Toml table : tables) {
+          ScalingValue scalingValue = table.to(ScalingValue.class);
+          scalingValue.setDefaults();
+          damage.add(scalingValue);
+        }
       }
-      if (value > this.max) {
-        return this.max;
-      } else if (value < this.min) {
-        return this.min;
-      } else {
-        return value;
+
+      tables = config.getTables("speed");
+      if (tables != null) {
+        for (Toml table : tables) {
+          ScalingValue scalingValue = table.to(ScalingValue.class);
+          scalingValue.setDefaults();
+          speed.add(scalingValue);
+        }
       }
+    } catch (Exception e) {
+      Scalingmobs.LOGGER.error(e.toString());
+      Scalingmobs.LOGGER.error("Error reading config file, something is probably formatted incorrectly.");
     }
+
+    ScalingMobsConfig.INSTANCE = this;
   }
 }

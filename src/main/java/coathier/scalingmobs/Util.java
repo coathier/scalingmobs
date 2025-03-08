@@ -6,4 +6,9 @@ public class Util {
     final long TICKS_PASSED = time - time % DAY_TICKS;
     return (int)(TICKS_PASSED / DAY_TICKS);
   }
+
+  public static boolean isNight(long time) {
+    long dayCycle = time % 24000;
+    return dayCycle > 13000 && dayCycle < 23000;
+  }
 }
