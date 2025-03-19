@@ -1,6 +1,8 @@
 # Scaling Mobs
 This is a server side mod that allows for scaling of the attributes health, damage and speed. You can configure it through a file and choose on what days the attributes should be applied/active.
 
+Currently attributes are applied to all hostile entities except the Warden, Wither and Ender Dragon. In case of more demand customizable filters might be added.
+
 Here's a list of the configuration options that can be found in the `scalingmobs.toml` file within the configuration directory.
 | Name                | Value                                                                         | Description                                                                                                                                                                                                                                                                                                             |
 | ------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
