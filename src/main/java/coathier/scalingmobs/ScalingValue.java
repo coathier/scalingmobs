@@ -1,7 +1,7 @@
 package coathier.scalingmobs;
 
-// import java.util.LinkedList;
-// import java.util.List;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 import net.minecraft.util.math.Vec3d;
@@ -19,7 +19,12 @@ public class ScalingValue {
 
   public Integer activeNth;
   public Time timeWhenActive;
-  // public List<String> dimensionFilter;
+
+  public FilterType dimensionFilterType;
+  public List<String> dimensionFilter;
+
+  public FilterType mobFilterType;
+  public List<String> mobFilter;
 
   public enum ScalingType {
     LINEAR, EXPONENTIAL, CONSTANT
@@ -33,15 +38,28 @@ public class ScalingValue {
     DAY, NIGHT, BOTH
   }
 
-  public Optional<Float> calculateValue(Vec3d position, long time, String dimension) {
-    // boolean isInFilter = false;
-    // for (String filter : dimensionFilter) {
-    //   if (dimension == filter) {
-    //     isInFilter = true;
-    //     break;
-    //   }
-    // }
-    // if (!isInFilter) return Optional.empty();
+  public enum FilterType {
+    EXCLUDE, INCLUDE
+  }
+
+  public Optional<Float> calculateValue(Vec3d position, long time, String dimension, String mob) {
+    Boolean isInFilter = dimensionFilter.contains(dimension);
+    switch (this.dimensionFilterType) {
+      case EXCLUDE:
+        if (isInFilter) return Optional.empty();
+        break;
+      case INCLUDE:
+        if (!isInFilter) return Optional.empty();
+    }
+
+    isInFilter = mobFilter.contains(mob);
+    switch (this.mobFilterType) {
+      case EXCLUDE:
+        if (isInFilter) return Optional.empty();
+        break;
+      case INCLUDE:
+        if (!isInFilter) return Optional.empty();
+    }
 
     switch (this.timeWhenActive) {
       case DAY:
@@ -123,11 +141,18 @@ public class ScalingValue {
       this.scalingFactor = ScalingFactor.DAYS;
       Scalingmobs.LOGGER.info("scalingFactor is either not set or incorrectly configured! (defaulting to \"DAYS\")");
     }
-    // if (this.dimensionFilter == null) {
-    //   this.dimensionFilter = new LinkedList<>();
-    //   this.dimensionFilter.add("minecraft:overworld");
-    //   Scalingmobs.LOGGER.info("dimensionFilter is incorrectly configured!");
-    // }
+    if (this.dimensionFilterType == null) {
+      this.dimensionFilterType = FilterType.EXCLUDE;
+    }
+    if (this.dimensionFilter == null) {
+      this.dimensionFilter = new LinkedList<>();
+    }
+    if (this.mobFilter == null) {
+      this.mobFilter = new LinkedList<>();
+    }
+    if (this.mobFilterType == null) {
+      this.mobFilterType = FilterType.EXCLUDE;
+    }
     if (this.timeWhenActive == null) {
       this.timeWhenActive = Time.NIGHT;
       Scalingmobs.LOGGER.info("timeWhenActive is either not set or incorrectly configured! (defaulting to \"NIGHT\")");
