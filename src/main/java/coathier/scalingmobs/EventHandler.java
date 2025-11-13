@@ -11,14 +11,14 @@ import net.minecraft.util.math.Vec3d;
 
 public class EventHandler {
   public static void onEntityLoad(Entity entity , ServerWorld level) {
-    if (level.isClient) return;
+    if (level.isClient()) return;
     if (!(entity instanceof HostileEntity mob)) return;
 
     ScalingMobsConfig config = ScalingMobsConfig.INSTANCE;
 
-    Vec3d position = mob.getPos();
-    long time = mob.getWorld().getTimeOfDay();
-    String dimension = mob.getWorld().getRegistryKey().getValue().toString();
+    Vec3d position = mob.getEntityPos();
+    long time = mob.getEntityWorld().getTimeOfDay();
+    String dimension = mob.getEntityWorld().getRegistryKey().getValue().toString();
     String name = Registries.ENTITY_TYPE.getId(mob.getType()).toString();
 
     float value;
